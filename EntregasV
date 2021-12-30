@@ -1,0 +1,36 @@
+package Dominio;
+
+public class EntregasV extends Entregas{
+	private String material;
+	private double peso;
+	private double valor;
+	public EntregasV(String codigo, String tipo, String remitente, String destinatario,
+			String material, double peso, double valor) {
+		super(codigo, tipo, remitente, destinatario);
+		this.material = material;
+		this.peso = peso;
+		this.valor = valor;
+	}
+	public String getMaterial() {
+		return material;
+	}
+	public void setMaterial(String material) {
+		this.material = material;
+	}
+	public double getPeso() {
+		return peso;
+	}
+	public void setPeso(double peso) {
+		this.peso = peso;
+	}
+	public double getValor() {
+		return valor;
+	}
+	public void setValor(double valor) {
+		this.valor = valor;
+	}
+	public String toString() {
+        return super.toString()+" material:" + material + " peso: " + peso + " valor: " + valor ;
+    }
+	
+}
