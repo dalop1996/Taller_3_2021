@@ -1,0 +1,39 @@
+package Logica;
+
+public interface Sistema {
+
+	void agregarEntregasD(String codigo, String tipo, String remitente, String destinatario, double gramos,
+			double grosor, double valor);
+
+	void agregarEntregasE(String codigo, String tipo, String remitente, String destinatario, double gramos,
+			double largo, double ancho, double profundidad, double valor);
+
+	void agregarEntregasV(String codigo, String tipo, String remitente, String destinatario, String material,
+			double peso, double valor);
+
+	void agregCliente(String rut, String nombre, String apellido, double saldo, String origen);
+
+	void agregarLocalizacion(String ciudad, int envios, int recibos, double ganancias);
+
+	boolean validarRut(String rut);
+
+	double verificarDatosEnvio(String tipo, double peso, double grosor, double largo, double ancho, double profundidad,String material);
+
+	String realizarEntrega(double costo, String codigo, String tipo, String rut, String rut2, double peso, double grosor, double largo,
+			double ancho, double profundidad,String material);
+
+	String agregarSaldo(double agregado, String rut);
+
+	String verTusEntregas(String rut);
+	
+	String RandomNumber();
+	
+	String EntregasPorTipo(String tipo);
+
+    String EntregasPorLocalizacion();
+
+    String EntregasPorCliente();
+
+    String GananciasOficinas();
+	
+}
