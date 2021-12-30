@@ -1,0 +1,75 @@
+package Logica;
+
+import Dominio.Entregas;
+import Dominio.EntregasD;
+import Dominio.NodoEntrega;
+
+public class ListaDobleNexo {
+    private NodoEntrega first;
+    private NodoEntrega last; 
+    private int size;
+
+    public ListaDobleNexo() {
+        first=null;
+        last=null;
+        size = 0;
+    }
+    public boolean isEmpty() {
+        return first==null;
+    }
+
+    public void insertarPrimer(Entregas ee) {
+        NodoEntrega nuevoN = new NodoEntrega(ee);
+        if( isEmpty() ) {
+            first = nuevoN;
+            last = first;
+        }else {
+            first.setPrev(nuevoN);
+        }
+        nuevoN.setNext(first);
+        first = nuevoN;
+        size++;
+    }
+    public void insertatFinal(Entregas ee) {
+        NodoEntrega nuevoN = new NodoEntrega(ee);
+        if( isEmpty() ) {
+            first = nuevoN;
+        }else {
+            last.setNext(nuevoN);
+            nuevoN.setPrev(last);
+        }
+        last = nuevoN;
+        size++;
+    }
+    public int getSize() {
+        return size;
+    }
+
+    public Entregas buscarNodo(int i) {
+        NodoEntrega nodo = first;
+        while (nodo!=null) {
+            if(i == 0) {
+                return nodo.getEntrega();
+            }
+            i-=1;
+            nodo =nodo.getNext();
+        }
+        return null;
+    }
+
+    public Entregas buscar(String tipo) {
+        if(first == null) {
+            return null;
+        }
+        else {
+            NodoEntrega current = first;
+            while(current!=null && !tipo.equals(current.getEntrega().getTipo())) {
+                current = current.getNext();
+            }if(current !=null) {
+                return current.getEntrega();
+            }else {
+                return null;
+            }
+        }
+    }
+}
