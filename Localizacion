@@ -1,0 +1,41 @@
+package Dominio;
+
+public class Localizacion {
+	private String nombre_ciudad;
+	private int cant_entregas;
+	private int cant_envios;
+	private double ganancias;
+	public Localizacion(String nombre_ciudad, int cant_entregas, int cant_envios, double ganancias) {
+		super();
+		this.nombre_ciudad = nombre_ciudad;
+		this.cant_entregas = cant_entregas;
+		this.cant_envios = cant_envios;
+		this.ganancias = ganancias;
+	}
+	public String getNombre_ciudad() {
+		return nombre_ciudad;
+	}
+	public void setNombre_ciudad(String nombre_ciudad) {
+		this.nombre_ciudad = nombre_ciudad;
+	}
+	public int getCant_entregas() {
+		return cant_entregas;
+	}
+	public void setCant_entregas(int cant_entregas) {
+		this.cant_entregas = cant_entregas;
+	}
+	public int getCant_envios() {
+		return cant_envios;
+	}
+	public void setCant_envios(int cant_envios) {
+		this.cant_envios = cant_envios;
+	}
+	public double getGanancias() {
+		return ganancias;
+	}
+	public void setGanancias(double ganancias) {
+		this.ganancias = ganancias;
+	}
+	
+	
+}
