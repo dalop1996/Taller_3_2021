@@ -1,0 +1,273 @@
+package Logica;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Random;
+import java.util.Scanner;
+
+public class App {
+	public static void main(String[] args) throws IOException {
+		Scanner scan = new Scanner(System.in);
+		Sistema sis = new SistemaImpl();
+		int cant_l = leerLocalizacion(sis);
+		int cant_c = leerClientes(sis);
+		int cant_e = leerEntregas(sis);
+		System.out.println("Bienvenidos a Starkon");
+		String res="";
+		while(!res.equals("2")) {
+			System.out.println("Ingrese su RUT: ");
+			String rut = scan.nextLine();
+			if(rut.equals("Admin")) {
+                System.out.println("Ingrese la contraseña de admin: ");
+                String pass = scan.nextLine();
+                if(pass.equals("choripan123")) {
+                	boolean condicion=true;
+                	while(condicion) {
+                		System.out.println("Bienvenido al menu de admin elija una de las siguientes opciones: ");
+                        System.out.println("1)Entregas por tipo\n2)Entregas por localización\n3)Entregas por cliente\n4)Registro de ganancias ");
+                        String admRes = scan.nextLine();
+                        if(admRes.equals("1")) {
+                            System.out.println("Indique el tipo de entrega del cual desea revisar sus datos (D-E-V) ");
+                            String tipo =  scan.nextLine().toUpperCase();
+                            System.out.println(sis.EntregasPorTipo(tipo));
+                            condicion=bucle();
+                        }else if(admRes.equals("2")) {
+                            System.out.println(sis.EntregasPorLocalizacion());
+                            condicion=bucle();
+                        }else if(admRes.equals("3")) {
+                            System.out.println(sis.EntregasPorCliente());
+                            condicion=bucle();
+                        }else if (admRes.equals("4")) {
+                            System.out.println(sis.GananciasOficinas());
+                            condicion=bucle();
+                        }else {
+                            System.out.println("Eliga una opcion valida");
+                            condicion=bucle();
+
+                        }
+                	}
+                    
+                }else {
+                    System.out.println("Datos equivocados intente otra vez");
+                    
+                }
+            }else if(sis.validarRut(rut) == true) {
+				boolean condicion = true;
+				while(condicion) {
+					System.out.println("Menu Cliente, escoga una opcion: \n1)Realizar una entrega\n2)Recargar Saldo\n3)Ver entregas");
+					String respuesta = scan.next();
+					if(respuesta.equals("1")) {
+						System.out.println("Ingrese el tipo de entrega de desee realizar [ D - E - V ] :");
+						String tipo = scan.nextLine().toUpperCase();
+						if(tipo.equals("D")) {
+							System.out.println("Ingrese el peso del paquete (Max 1.5 KG): ");
+							double peso = scan.nextDouble();
+							System.out.println("Ingrese el grosor del paquete (Max 5 M):");
+							double grosor = scan.nextDouble();
+							double costo = sis.verificarDatosEnvio(tipo, peso, grosor,0.0,0.0,0.0,"a");
+							if(costo != -1) {
+								System.out.println("Ingrese el rut del destinatario: ");
+								String rut2 = scan.next();
+								if(sis.validarRut(rut2) == true) {
+									//generador de codigo
+									String codigo = sis.RandomNumber();
+									System.out.println(sis.realizarEntrega(costo,codigo,tipo,rut,rut2,peso,grosor,0.0,0.0,0.0,"a"));
+									condicion=bucle();
+								}else {
+									System.out.println("No se encontro el rut en nuestra base de datos");
+									condicion=bucle();
+								}
+							}else {
+								System.out.println("No cumple con los parametros para enviar este tipo de paquetes");
+								condicion=bucle();
+							}
+						}else if(tipo.equals("E")) {
+							System.out.println("Ingrese el peso del paquete (Max 50 KG):");
+							double peso = scan.nextDouble();
+							System.out.println("Ingrese el largo del paquete (Max 1.2 M):");
+							double largo = scan.nextDouble();
+							System.out.println("Ingrese el ancho del paquete (Max 0.8 M):");
+							double ancho = scan.nextDouble();
+							System.out.println("Ingrese la profundidad del paquete (Max 0.8 M):");
+							double profundidad = scan.nextDouble();
+							double costo = sis.verificarDatosEnvio(tipo, peso, 0, largo, ancho, profundidad, "a");
+							if(costo>0) {
+								System.out.println("Ingrese el rut del destinatario: ");
+								String rut2 = scan.next();
+								if(sis.validarRut(rut2) == true) {
+									//generador de codigo
+									String codigo = sis.RandomNumber();
+									System.out.println(sis.realizarEntrega(costo, codigo, tipo, rut, rut2, peso, 0, largo, ancho, profundidad, "a"));
+									condicion=bucle();
+								}else {
+									System.out.println("No se encontro el rut en nuestra base de datos");
+									condicion=bucle();
+								}
+							}else {
+								System.out.println("No cumple con los parametros para enviar este tipo de paquetes");
+								condicion=bucle();
+							}
+						}else if(tipo.equals("V")) {
+							System.out.println("Ingrese el peso del paquete (Max 2 KG):");
+							double peso = scan.nextDouble();
+							System.out.println("Ingrese el material:");
+							String material = scan.nextLine();
+							if( !material.equals("Cuero") || !material.equals("Plastico") || !material.equals("Tela")) {
+								System.out.println("No cumple con los parametros para enviar este tipo de paquetes");
+								condicion=bucle();
+							}else {
+								double costo = sis.verificarDatosEnvio(tipo, peso, 0, 0, 0, 0, material);
+								if(costo>0) {
+									System.out.println("Ingrese el rut del destinatario: ");
+									String rut2 = scan.next();
+									if(sis.validarRut(rut2) == true) {
+										//generador de codigo
+										String codigo = sis.RandomNumber();
+										System.out.println(sis.realizarEntrega(costo, codigo, tipo, rut, rut2, peso, 0, 0, 0, 0, material));
+										condicion=bucle();
+									}else {
+										System.out.println("No se encontro el rut en nuestra base de datos");
+										condicion=bucle();
+									}
+								}else {
+									System.out.println("No cumple con los parametros para enviar este tipo de paquetes");
+									condicion=bucle();
+								}
+							}
+						}else {
+							System.out.println("No se escogio una opcion valida");
+							condicion=bucle();
+						}
+					}else if(respuesta.equals("2")) {
+						System.out.println("Ingrese la cantidad de dinero a ingresar en su cuenta: ");
+						double agregado = scan.nextDouble();
+						if(agregado<=0) {
+							System.out.println("No se escogio una opcion validad");
+							condicion=bucle();
+						}else {
+							System.out.println(sis.agregarSaldo(agregado,rut));
+							condicion=bucle();
+						}
+					}else if(respuesta.equals("3")) {
+						System.out.println(sis.verTusEntregas(rut));
+					}else {
+						System.out.println("No se escogio una opcion valida");
+						condicion=bucle();
+					}
+				}
+				
+			}else {
+				System.out.println("Desea agregar una nueva cuenta [1] o cerrar [2] :");
+				res = scan.nextLine();
+				if(res.equals("1")) {
+					System.out.println("Ingrese su rut: ");
+					String rut1 = scan.nextLine();
+					System.out.println("Ingrese su nombre: ");
+					String nombre = scan.nextLine();
+					System.out.println("Ingrese su apellido: ");
+					String apellido = scan.nextLine();
+					double saldo = 0;
+					System.out.println("Ingrese su ciudad: ");
+					String ciudad = scan.nextLine();
+					sis.agregCliente(rut1, nombre, apellido, saldo, ciudad);
+					System.out.println("Ingresado con exito, ahora puede iniciar sesion");
+				}
+			}
+		}
+	}
+	
+	private static int leerEntregas(Sistema sis) throws IOException {
+		BufferedReader arch = new BufferedReader(new FileReader("Entregas.txt"));
+		String linea ="";
+		int cant=0;
+		while((linea=arch.readLine())!=null) {
+			String parte[] = linea.split(",");
+			String codigo = parte[0];
+			String tipo = parte[1];
+			String remitente = parte[2];
+			String destinatario = parte[3];
+			double valor=0;
+			if(tipo.equals("D")) {
+				double gramos = Double.parseDouble(parte[4]);
+				double grosor = Double.parseDouble(parte[5]);
+				valor = gramos*grosor*100;
+				sis.agregarEntregasD(codigo,tipo,remitente,destinatario,gramos,grosor,valor);
+				
+			}else if(tipo.equals("E")) {
+				double gramos = Double.parseDouble(parte[4]);
+				double largo = Double.parseDouble(parte[5]);
+				double ancho = Double.parseDouble(parte[6]);
+				double profundidad = Double.parseDouble(parte[7]);
+				valor = gramos*largo*ancho*profundidad*50;
+				sis.agregarEntregasE(codigo,tipo,remitente,destinatario,gramos,largo,ancho,profundidad,valor);
+			}else {
+				double precioM=0;
+				String material = parte[4];
+				double peso = Double.parseDouble(parte[5]);
+				if(material.equals("Cuero")) {
+					precioM=200;
+				}else if(material.equals("Plastico")){
+					precioM=150;
+				}else {
+					precioM=100;
+				}
+				valor = precioM*peso*150;
+				sis.agregarEntregasV(codigo,tipo,remitente,destinatario,material,peso,valor);
+			}
+			cant++;
+		}
+		return cant;
+	}
+
+	private static int leerClientes(Sistema sis) throws IOException {
+		BufferedReader arch = new BufferedReader(new FileReader("Cliente.txt"));
+		String linea ="";
+		int cant=0;
+		while((linea=arch.readLine())!=null) {
+			String parte[] = linea.split(",");
+			String rut = parte[0];
+			String nombre = parte[1];
+			String apellido = parte[2];
+			double saldo = Double.parseDouble(parte[3]);
+			String origen = parte[4];
+			sis.agregCliente(rut,nombre,apellido,saldo,origen);
+			cant++;
+		}
+		return cant;
+	}
+
+	private static int leerLocalizacion(Sistema sis) throws IOException {
+		BufferedReader arch = new BufferedReader(new FileReader("localizacion.txt"));
+		String linea ="";
+		int cant=0;
+		while((linea=arch.readLine())!= null) {
+			String ciudad = linea;
+			int envios=0;
+			int recibos =0;
+			double ganancias=0;
+			sis.agregarLocalizacion(ciudad,envios,recibos,ganancias);
+			cant++;
+			
+		}
+		return cant;
+	}
+	private static boolean bucle() {
+		Scanner scaner = new Scanner(System.in);
+		String res="";
+		boolean condicion = false;
+		while(!res.equals("1") && !res.equals("2") && !res.equals("3")) {
+			System.out.println("¿Desea realizar otra accion [1] , volver al menu principal [2]");
+			res = scaner.next();
+			if(res.equals("2")) {
+				res="4";
+				condicion=false;
+				break;
+			}if(res.equals("1")) {
+				condicion = true;
+			}
+		}
+		return condicion;
+	}
+	
+}	
