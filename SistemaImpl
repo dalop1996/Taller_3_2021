@@ -1,0 +1,313 @@
+package Logica;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
+import Dominio.*;
+public class SistemaImpl implements Sistema {
+	private List<Clientes> listaC;
+	private List<Localizacion> listaL;
+	private ListaDobleNexo listaE = new ListaDobleNexo();
+	
+	public SistemaImpl() {
+		this.listaC = new LinkedList<Clientes>();
+		this.listaL = new ArrayList<Localizacion>();
+	}
+
+	@Override
+	public void agregarEntregasD(String codigo, String tipo, String remitente, String destinatario, double gramos,
+			double grosor, double valor) {
+		EntregasD entrega = new EntregasD(codigo,tipo,remitente,destinatario,gramos,grosor,valor);
+		listaE.insertarPrimer(entrega);
+		
+	}
+
+	@Override
+	public void agregarEntregasE(String codigo, String tipo, String remitente, String destinatario, double gramos,
+			double largo, double ancho, double profundidad, double valor) {
+		EntregasE entrega = new EntregasE(codigo,tipo,remitente,destinatario,gramos,largo,ancho,profundidad,valor);
+		listaE.insertarPrimer(entrega);
+		
+	}
+
+	@Override
+	public void agregarEntregasV(String codigo, String tipo, String remitente, String destinatario, String material,
+			double peso, double valor) {
+		EntregasV entrega = new EntregasV(codigo,tipo,remitente,destinatario,material,peso,valor);
+		listaE.insertarPrimer(entrega);
+		
+	}
+
+	@Override
+	public void agregCliente(String rut, String nombre, String apellido, double saldo, String origen) {
+		Clientes cli = new Clientes(rut,nombre,apellido,saldo,origen);
+		listaC.add(cli);
+		
+	}
+
+	@Override
+	public void agregarLocalizacion(String ciudad, int envios, int recibos, double ganancias) {
+		Localizacion loc = new Localizacion(ciudad,envios,recibos,ganancias);
+		listaL.add(loc);
+	}
+
+	@Override
+	public boolean validarRut(String rut) {
+		for(int i=0;i<listaC.size();i++) {
+			if(listaC.get(i).getRut().equals(rut)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	@Override
+	public double verificarDatosEnvio(String tipo, double peso, double grosor, double largo, double ancho, double profundidad, String material) {
+		double costo=-1;
+		if(tipo.equals("D")) {
+			if(peso<1.5 && grosor<5.0) {
+				costo = peso*grosor*100;
+			}
+		}else if(tipo.equals("E")) {
+			if(peso>50 && largo>1.2 && ancho>=0.8 && profundidad<0.8) {
+				costo = peso*largo*ancho*profundidad*50;
+			}
+		}else if(tipo.equals("V")){
+			if(peso<2) {
+				double precioM = 0;
+				if(material.equals("Cuero")) {
+					precioM =200;
+				}else if(material.equals("Plastico")) {
+					precioM = 150;
+				}else {
+					precioM=100;
+				}
+				costo = precioM*peso*150;
+			}
+			
+		}else {
+			costo=-1;
+		}
+		return costo;
+	}
+
+	@Override
+	public String realizarEntrega(double costo,String codigo, String tipo, String rut, String rut2, double peso, double grosor,
+			double largo, double ancho, double profundidad, String material) {
+		String txt="";
+		int i=0;
+		while(i<listaC.size() && !listaC.get(i).getRut().equals(rut)) {
+			i++;
+		}
+		if(i!=listaC.size()) {
+			if(tipo.equals("D")) {
+				if (listaC.get(i).getSaldo() > costo) {
+					EntregasD ent = new EntregasD(codigo,tipo,rut,rut2,peso,grosor,costo);
+					listaE.insertarPrimer(ent);
+					listaC.get(i).setSaldo(listaC.get(i).getSaldo() - costo);
+					txt="Entrega realizada con exito";
+				}
+			}else if(tipo.equals("E")) {
+				if (listaC.get(i).getSaldo() > costo) {
+					EntregasE ent = new EntregasE(codigo,tipo,rut,rut2,peso,largo,ancho,profundidad,costo);
+					listaE.insertarPrimer(ent);
+					listaC.get(i).setSaldo(listaC.get(i).getSaldo() - costo);
+					txt="Entrega realizada con exito";
+				}
+			}else {
+				if (listaC.get(i).getSaldo() > costo) {
+					EntregasV ent = new EntregasV(codigo,tipo,rut,rut2,material,peso,costo);
+					listaE.insertarPrimer(ent);
+					listaC.get(i).setSaldo(listaC.get(i).getSaldo() - costo);
+					txt="Entrega realizada con exito";
+				}
+			}
+		}
+		if(txt.equals("")) {
+			txt="No se encontro saldo";
+		}
+		
+		return txt;
+	}
+
+	@Override
+	public String agregarSaldo(double agregado, String rut) {
+		String txt="";
+		int i=0;
+		while(i<listaC.size() && !listaC.get(i).getRut().equals(rut)) {
+			i++;
+		}
+		listaC.get(i).setSaldo(listaC.get(i).getSaldo() + agregado);
+		txt="Se agrego $"+agregado+" a su cuenta";
+		return txt;
+	}
+
+	@Override
+	public String verTusEntregas(String rut) {
+		String txt="Total envios de: "+rut+"\n";
+		Entregas c = null;
+		int i=0;
+		while(i<listaE.getSize() && !listaE.buscarNodo(i).getRemitente().equals(rut)) {
+			i++;
+		}
+		if(i==listaE.getSize()) {
+			txt+="Envios: 0\n";
+		}else {
+			txt+="Enviados: \n";
+			c = listaE.buscarNodo(i);
+			if(c instanceof EntregasD) {
+				EntregasD e = (EntregasD) c;
+				txt+= e.toString()+"\n";
+			}else if(c instanceof EntregasE) {
+				EntregasE e = (EntregasE) c;
+				txt+= e.toString()+"\n";
+			}else {
+				EntregasV e = (EntregasV) c;
+				txt+= e.toString()+"\n";
+			}
+		}
+		int k=0;
+		while(k<listaE.getSize() && !listaE.buscarNodo(k).getDestinatario().equals(rut)) {
+			k++;
+		}
+		if(k==listaE.getSize()) {
+			txt+="Recibidos: 0\n";
+		}else {
+			txt+="Recibidos: \n";
+			c = listaE.buscarNodo(k);
+			if(c instanceof EntregasD) {
+				EntregasD e = (EntregasD) c;
+				txt+= e.toString()+"\n";
+			}else if(c instanceof EntregasE) {
+				EntregasE e = (EntregasE) c;
+				txt+= e.toString()+"\n";
+			}else {
+				EntregasV e = (EntregasV) c;
+				txt+= e.toString()+"\n";
+			}
+		}
+		return txt;
+	}
+	public String RandomNumber() {
+        Random rand =  new Random();
+        int upperbound  =  999999;
+        int int_rando = rand.nextInt(upperbound);
+        String randon = String.valueOf(int_rando);
+        return randon;
+
+    }
+	public String EntregasPorTipo(String tipo) {
+        String entregas = "";
+        for(int i =0; i<=listaE.getSize();i++) {
+
+            if(listaE.buscarNodo(i).getTipo().equals(tipo)) {
+                if(tipo.equals("D")) {
+
+                    entregas += listaE.buscar(tipo).toString()+"\n";
+                }else if (tipo.equals("E")){
+                    entregas += listaE.buscar(tipo).toString()+"\n";
+                }else if(tipo.equals("V")) {
+                    entregas += listaE.buscar(tipo).toString() +"\n";
+                }else {
+                    return entregas;
+                }
+            }
+        }
+        return entregas;
+    }
+	public String EntregasPorLocalizacion() {
+        String entregas = "";
+        String rem = "";
+        String dest = "";
+        int cont_rem = 0;
+        int cont_dest = 0;
+
+        for(int i  = 0; i<listaE.getSize();i++){
+            rem = listaE.buscarNodo(i).getRemitente();
+            dest = listaE.buscarNodo(i).getDestinatario();
+            for(int j = 0; j<listaC.size();j++) {
+                if(rem.equals(listaC.get(j).getRut())) {
+                    for(int k =0;k<listaL.size();k++) {
+                        if(listaC.get(j).getCiudad().equals(listaL.get(k).getNombre_ciudad())) {
+                            listaL.get(k).setCant_envios(listaL.get(k).getCant_envios()+1);
+                            //entregas+= "Oficina: "+listaL.get(k).getNombre_ciudad() + " Envios: "+ listaL.get(k).getCant_envios()+"\n";
+                        }
+                    }
+                }if(dest.equals(listaC.get(j).getRut())) {
+                    for(int k =0;k<listaL.size();k++) {
+                        if(listaC.get(j).getCiudad().equals(listaL.get(k).getNombre_ciudad())) {
+                            listaL.get(k).setCant_entregas(listaL.get(k).getCant_entregas()+1);
+                            //entregas+= "Oficina: "+listaL.get(k).getNombre_ciudad() + " Entregas: "+ listaL.get(k).getCant_envios()+"\n";
+                        }
+                    }
+                }
+            }
+        }
+        for(int a  = 0; a<listaL.size();a++) {
+            entregas+="Oficina: " + listaL.get(a).getNombre_ciudad() + " Envios: " + listaL.get(a).getCant_envios() +
+                    " Entregas: " + listaL.get(a).getCant_entregas() + "\n";
+        }
+        return entregas;
+    }
+	public String EntregasPorCliente() {
+        String entregas = "";
+        String rutC = "";
+        for(int i  = 0 ; i<listaC.size();i++) {
+            rutC =  listaC.get(i).getRut();
+            for(int j  =0 ; j<listaE.getSize();j++) {
+                if (rutC.equals(listaE.buscarNodo(j).getRemitente())) {
+                    entregas += "Rut cliente: "+rutC+listaE.buscarNodo(j).toString()+"\n";
+                }
+            }
+
+        }
+
+        return entregas;
+    }
+	public String GananciasOficinas() {
+        int cont_office  = 0;
+        int cont_dinero_office = 0 ;
+        int tot_dinero = 0;
+        String rem = "";
+        Entregas c = null;
+        String gananciasLugar = "";
+        String r = "";
+        
+        for (int i = 0; i<listaE.getSize();i++) {
+            rem = listaE.buscarNodo(i).getRemitente();
+            for(int j =0 ; j<listaC.size();j++) {
+                if(rem.equals(listaC.get(j).getRut())) {
+                    for(int k = 0 ; k<listaL.size();k++) {
+                        if(listaC.get(j).getCiudad().equals(listaL.get(k).getNombre_ciudad())) {
+                            c = listaE.buscarNodo(i);
+                            if(c instanceof EntregasD) {
+                                EntregasD e = (EntregasD) c;
+                                double valor = e.getValor();
+                                listaL.get(k).setGanancias(valor);
+                                tot_dinero+=valor;
+                                gananciasLugar +="Oficina: " + listaC.get(j).getCiudad()+ " Ganancias: "+listaL.get(k).getGanancias()+"\n"; 
+                            }else if(c instanceof EntregasE) {
+                                EntregasE ee = (EntregasE) c;
+                                double valor = ee.getValor();
+                                listaL.get(k).setGanancias(valor);
+                                tot_dinero+=valor;
+                                gananciasLugar +="Oficina: " + listaC.get(j).getCiudad()+ " Ganancias: "+listaL.get(k).getGanancias()+"\n"; 
+                            }else if(c instanceof EntregasV) {
+                                EntregasV eee = (EntregasV) c;
+                                double valor = eee.getValor();
+                                listaL.get(k).setGanancias(valor);
+                                tot_dinero+=valor;
+                                gananciasLugar +="Oficina: " + listaC.get(j).getCiudad()+ " Ganancias: "+listaL.get(k).getGanancias()+"\n"; 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        gananciasLugar+="Ganancias totales de las oficinas: " + tot_dinero;
+        return gananciasLugar;
+    }
+}
