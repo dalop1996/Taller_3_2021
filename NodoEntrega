@@ -1,0 +1,34 @@
+package Dominio;
+
+public class NodoEntrega {
+	private Entregas entrega;
+	private NodoEntrega next;
+	private NodoEntrega prev;
+	
+	public NodoEntrega(Entregas e) {
+		this.entrega = e;
+		next = null;
+		prev = null;
+	}
+
+	public Entregas getEntrega() {
+		return entrega;
+	}
+
+	public NodoEntrega getNext() {
+		return next;
+	}
+
+	public void setNext(NodoEntrega next) {
+		this.next = next;
+	}
+
+	public NodoEntrega getPrev() {
+		return prev;
+	}
+
+	public void setPrev(NodoEntrega prev) {
+		this.prev = prev;
+	}
+	
+}
